@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Level Up: Solo Tracker</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #0a0a0a;
+      color: #e0e0e0;
+      overflow-x: hidden;
+    }
+
+    header {
+      text-align: center;
+      padding: 40px 20px;
+      color: #00ffff;
+      text-shadow: 0 0 12px #00ffff;
+    }
+
+    h1 {
+      font-size: 3em;
+      margin: 0;
+    }
+
+    .subtext {
+      font-size: 1.2em;
+      color: #bbb;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .task-list, .stats-panel {
+      background: #111;
+      border: 1px solid #00ffff55;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px #00ffff33;
+      margin-bottom: 30px;
+    }
+
+    .task {
+      display: flex;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #222;
+    }
+
+    .task:last-child {
+      border-bottom: none;
+    }
+
+    input[type="checkbox"] {
+      accent-color: #00ffff;
+      width: 20px;
+      height: 20px;
+      margin-right: 15px;
+      transform: scale(1.2);
+    }
+
+    .task label {
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+
+    .task input:checked + label {
+      color: #00ff99;
+      text-shadow: 0 0 8px #00ff99;
+    }
+
+    .xp-bar {
+      margin-top: 20px;
+      background: #222;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 0 10px #00ffff66;
+    }
+
+    .xp-fill {
+      height: 20px;
+      background: linear-gradient(to right, #00ffff, #00ff99);
+      width: 0%;
+      transition: width 0.5s ease-in-out;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 10px;
+      font-size: 1.1em;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .glow {
+      color: #00ffff;
+      text-shadow: 0 0 12px #00ffff;
+    }
+
+    footer {
+      text-align: center;
+      margin: 40px 0;
+      font-size: 1em;
+      color: #888;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      background: #111;
+      border: 1px solid #00ffff55;
+      color: #00ffff;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background 0.3s ease;
+      margin: 10px 5px;
+    }
+
+    .btn:hover {
+      background: #00ffff22;
+    }
+
+    .fade-in {
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <header class="fade-in">
+    <h1>Level Up: Solo Tracker</h1>
+    <p class="subtext">"Track your quests. Level up. Become the Monarch."</p>
+  </header>
+
+  <div class="container fade-in">
+
+    <div class="task-list" id="taskList">
+      <h2 class="glow">Daily Quests</h2>
+      <div class="task">
+        <input type="checkbox" id="task1" />
+        <label for="task1">100 Push-ups – Strength +10</label>
+      </div>
+      <div class="task">
+        <input type="checkbox" id="task2" />
+        <label for="task2">Read 10 Pages – Wisdom +5</label>
+      </div>
+      <div class="task">
+        <input type="checkbox" id="task3" />
+        <label for="task3">Meditate 10min – Endurance +7</label>
+      </div>
+      <div class="task">
+        <input type="checkbox" id="task4" />
+        <label for="task4">Daily Log – Intelligence +4</label>
+      </div>
+      <div class="task">
+        <input type="checkbox" id="task5" />
+        <label for="task5">Side Quest – Charisma +6</label>
+      </div>
+    </div>
+
+    <div class="xp-bar fade-in">
+      <div class="xp-fill" id="xpBar"></div>
+    </div>
+
+    <div class="stats-panel fade-in">
+      <h2 class="glow">Stats</h2>
+      <div class="stats">
+        <div class="stat">STR: <span id="str">0</span></div>
+        <div class="stat">WIS: <span id="wis">0</span></div>
+        <div class="stat">END: <span id="end">0</span></div>
+        <div class="stat">INT: <span id="int">0</span></div>
+        <div class="stat">CHA: <span id="cha">0</span></div>
+      </div>
+    </div>
+
+    <div style="text-align: center;">
+      <button class="btn" onclick="toggleMusic()">Toggle Music</button>
+      <button class="btn" onclick="resetDaily()">Daily Reset</button>
+    </div>
+
+  </div>
+
+  <footer class="fade-in">
+    <p class="glow">The System watches your progress...</p>
+  </footer>
+
+  <audio id="bgMusic" loop>
+    <source src="https://cdn.pixabay.com/download/audio/2023/03/20/audio_6b56f58c48.mp3?filename=epic-fantasy-music-140997.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    const tasks = document.querySelectorAll('input[type="checkbox"]');
+    const xpBar = document.getElementById('xpBar');
+    const bgMusic = document.getElementById('bgMusic');
+
+    const stats = {
+      str: 10,
+      wis: 5,
+      end: 7,
+      int: 4,
+      cha: 6
+    };
+
+    const statElements = {
+      str: document.getElementById('str'),
+      wis: document.getElementById('wis'),
+      end: document.getElementById('end'),
+      int: document.getElementById('int'),
+      cha: document.getElementById('cha')
+    };
+
+    // Load saved data
+    window.onload = function () {
+      tasks.forEach((task, i) => {
+        const saved = localStorage.getItem(task.id);
+        if (saved === "true") task.checked = true;
+
+        task.addEventListener("change", () => {
+          localStorage.setItem(task.id, task.checked);
+          updateXP();
+        });
+      });
+      updateXP();
+    };
+
+    function updateXP() {
+      let total = tasks.length;
+      let completed = 0;
+      let currentStats = { str: 0, wis: 0, end: 0, int: 0, cha: 0 };
+
+      tasks.forEach((task, i) => {
+        if (task.checked) {
+          completed++;
+          if (i === 0) currentStats.str += stats.str;
+          if (i === 1) currentStats.wis += stats.wis;
+          if (i === 2) currentStats.end += stats.end;
+          if (i === 3) currentStats.int += stats.int;
+          if (i === 4) currentStats.cha += stats.cha;
+        }
+      });
+
+      statElements.str.innerText = currentStats.str;
+      statElements.wis.innerText = currentStats.wis;
+      statElements.end.innerText = currentStats.end;
+      statElements.int.innerText = currentStats.int;
+      statElements.cha.innerText = currentStats.cha;
+
+      const percent = Math.round((completed / total) * 100);
+      xpBar.style.width = percent + "%";
+    }
+
+    function toggleMusic() {
+      if (bgMusic.paused) {
+        bgMusic.play();
+      } else {
+        bgMusic.pause();
+      }
+    }
+
+    function resetDaily() {
+      tasks.forEach(task => {
+        task.checked = false;
+        localStorage.setItem(task.id, false);
+      });
+      updateXP();
+    }
+  </script>
+</body>
+</html>
